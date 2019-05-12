@@ -37,7 +37,7 @@ class GmpConan(ConanFile):
 
     def _configure_autotools(self):
         if not self._autotools:
-            self._autotools = AutoToolsBuildEnvironment(self, win_bash=tools.os_info.is_windows)
+            self._autotools = AutoToolsBuildEnvironment(self)
             if self.settings.os == "Macos":
                 configure_file = os.path.join(self._source_subfolder, "configure")
                 tools.replace_in_file(configure_file, r"-install_name \$rpath/", "-install_name ")
