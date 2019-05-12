@@ -39,9 +39,10 @@ class GmpConan(ConanFile):
         if not self._autotools:
             self._autotools = AutoToolsBuildEnvironment(self)
             if self.settings.os == "Macos":
-                tools.replace_in_file("configure", r"-install_name \$rpath/", "-install_name ")
-                configure_stats = os.stat("configure")
-                os.chmod("configure", configure_stats.st_mode | stat.S_IEXEC)
+                configure_file = os.path.join(self._source_subfolder, "configure")
+                tools.replace_in_file(configure_file, r"-install_name \$rpath/", "-install_name ")
+                configure_stats = os.stat(configure_file)
+                os.chmod(configure_file, configure_stats.st_mode | stat.S_IEXEC)
             configure_args = []
             if self.options.disable_assembly:
                 configure_args.append('--disable-assembly')
@@ -49,13 +50,12 @@ class GmpConan(ConanFile):
                 configure_args.extend(["--enable-shared", "--disable-static"])
             else:
                 configure_args.extend(["--disable-shared", "--enable-static"])
-            self._autotools.configure(args=configure_args)
+            self._autotools.configure(args=configure_args, configure_dir=self._source_subfolder)
         return self._autotools
 
     def build(self):
-        with tools.chdir(self._source_subfolder):
-            autotools = self._configure_autotools()
-            autotools.make()
+        autotools = self._configure_autotools()
+        autotools.make()
         # INFO: According to the gmp readme file, make check should not be omitted, but it causes timeouts on the CI server.
         if self.options.run_checks:
             autotools.make(args=['check'])
@@ -63,9 +63,8 @@ class GmpConan(ConanFile):
     def package(self):
         self.copy("COPYINGv2", dst="licenses", src=self._source_subfolder)
         self.copy("COPYING.LESSERv3", dst="licenses", src=self._source_subfolder)
-        with tools.chdir(self._source_subfolder):
-            autotools = self._configure_autotools()
-            autotools.install()
+        autotools = self._configure_autotools()
+        autotools.install()
         tools.rmdir(os.path.join(self.package_folder, "share"))
 
     def package_info(self):
