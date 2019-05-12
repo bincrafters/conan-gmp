@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
+import stat
 from conans import ConanFile, tools, AutoToolsBuildEnvironment
 from conans.errors import ConanInvalidConfiguration
 
@@ -40,6 +41,8 @@ class GmpConan(ConanFile):
             if self.settings.os == "Macos":
                 configure_file = os.path.join(self._source_subfolder, "configure")
                 tools.replace_in_file(configure_file, r"-install_name \$rpath/", "-install_name ")
+                configure_stats = os.stat(configure_file)
+                os.chmod(configure_file, configure_stats.st_mode | stat.S_IEXEC)
             configure_args = []
             if self.options.disable_assembly:
                 configure_args.append('--disable-assembly')
