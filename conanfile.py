@@ -18,6 +18,10 @@ class GmpConan(ConanFile):
     options = {"shared": [True, False], "fPIC": [True, False], "disable_assembly": [True, False], "run_checks": [True, False]}
     default_options = {'shared': False, 'fPIC': True, 'disable_assembly': True, 'run_checks': False}
     _autotools = None
+    
+    def build_requirements(self):
+        if not tools.which("m4"):
+            self.build_requires("m4_installer/1.4.18@bincrafters/stable")
 
     @property
     def _source_subfolder(self):
