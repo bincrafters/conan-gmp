@@ -15,8 +15,9 @@ class GmpConan(ConanFile):
     license = ("LGPL-3.0", "GPL-2.0")
     exports = ["LICENSE.md"]
     settings = "os", "arch", "compiler", "build_type"
-    options = {"shared": [True, False], "fPIC": [True, False], "disable_assembly": [True, False], "run_checks": [True, False]}
-    default_options = {'shared': False, 'fPIC': True, 'disable_assembly': True, 'run_checks': False}
+    options = {"shared": [True, False], "fPIC": [True, False], "disable_assembly": [True, False],
+               "run_checks": [True, False],"enable_cxx" : [True, False]}
+    default_options = {'shared': False, 'fPIC': True, 'disable_assembly': True, 'run_checks': False, "enable_cxx" : True}
     _autotools = None
     
     def build_requirements(self):
@@ -30,7 +31,9 @@ class GmpConan(ConanFile):
     def configure(self):
         if self.settings.os == "Windows" and self.settings.compiler == "Visual Studio":
             raise ConanInvalidConfiguration("The gmp package cannot be deployed on Visual Studio.")
-        del self.settings.compiler.libcxx
+
+        if not self.options.enable_cxx:
+            del self.settings.compiler.libcxx
 
     def source(self):
         sha256 = "5275bb04f4863a13516b2f39392ac5e272f5e1bb8057b18aec1c9b79d73d8fb2"
@@ -54,6 +57,8 @@ class GmpConan(ConanFile):
                 configure_args.extend(["--enable-shared", "--disable-static"])
             else:
                 configure_args.extend(["--disable-shared", "--enable-static"])
+            if self.options.enable_cxx:
+                configure_args.append('--enable-cxx')
             self._autotools.configure(args=configure_args, configure_dir=self._source_subfolder)
         return self._autotools
 
