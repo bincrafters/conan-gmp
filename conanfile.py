@@ -75,9 +75,13 @@ class GmpConan(ConanFile):
         autotools = self._configure_autotools()
         autotools.install()
         tools.rmdir(os.path.join(self.package_folder, "share"))
-        la = os.path.join(self.package_folder, "lib", "libgmp.la")
-        if os.path.isfile(la):
-            os.unlink(la)
+        self._remove_la('libgmp')
+        self._remove_la('libgmpxx')
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
+
+    def _remove_la(self, libname):
+        filename = os.path.join(self.package_folder, "lib", libname + ".la")
+        if os.path.isfile(filename):
+            os.unlink(filename)
