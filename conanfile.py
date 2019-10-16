@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import os
 import stat
 from conans import ConanFile, tools, AutoToolsBuildEnvironment
@@ -34,6 +33,7 @@ class GmpConan(ConanFile):
 
         if not self.options.enable_cxx:
             del self.settings.compiler.libcxx
+            del self.settings.compiler.cppstd
 
     def source(self):
         sha256 = "5275bb04f4863a13516b2f39392ac5e272f5e1bb8057b18aec1c9b79d73d8fb2"
